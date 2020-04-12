@@ -50,7 +50,7 @@ app.get("/", function(_req, res) {
 app.get("/webhook", (req, res) => {
   // Parse the query params
   //URL test : https://flashcardmessengerbotkite.pagekite.me/webhook?hub.mode=subscribe&hub.verify_token=chainealeatoire&hub.challenge=TESTCHALLENGE
-  console.log("c'est un wehbhook");
+  console.log("called wehbhook");
   let mode = req.query["hub.mode"];
   let token = req.query["hub.verify_token"];
   let challenge = req.query["hub.challenge"];
@@ -61,7 +61,6 @@ app.get("/webhook", (req, res) => {
 
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
-    console.log("entered");
     // Checks the mode and token sent is correct
     if (mode === "subscribe" && token === config.verifyToken) {
       // Responds with the challenge token from the request
@@ -105,7 +104,7 @@ app.post("/webhook", (req, res) => {
               );
               break;
             default:
-              console.log('Unsupported feed change type.');
+              console.log("Unsupported feed change type.");
               return;
           }
         }

@@ -31,7 +31,7 @@ i18n.configure({
     "zh_HK",
     "zh_TW"
   ],
-  defaultLocale: "en_US",
+  defaultLocale: "fr_FR",
   directory: path.join(__dirname, "locales"),
   objectNotation: true,
   api: {

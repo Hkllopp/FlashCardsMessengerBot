@@ -35,7 +35,7 @@ module.exports = class Receive {
       if (event.message) {
         let message = event.message;
 
-        if (message.quick_reply) {
+        if (message.quick_reply) { // Automatic responses
           responses = this.handleQuickReply();
         } else if (message.attachments) {
           responses = this.handleAttachmentMessage();
@@ -83,15 +83,15 @@ module.exports = class Receive {
     if (
       (greeting && greeting.confidence > 0.8) ||
       message.includes("start over")
-    ) {
+    ) {//Recommence la boucle de dialogue
       response = Response.genNuxMessage(this.user);
-    } else if (Number(message)) {
+    /*} else if (Number(message)) {
       response = Order.handlePayload("ORDER_NUMBER");
     } else if (message.includes("#")) {
       response = Survey.handlePayload("CSAT_SUGGESTION");
     } else if (message.includes(i18n.__("care.help").toLowerCase())) {
       let care = new Care(this.user, this.webhookEvent);
-      response = care.handlePayload("CARE_HELP");
+      response = care.handlePayload("CARE_HELP");*/
     } else {
       response = [
         Response.genText(
@@ -102,11 +102,15 @@ module.exports = class Receive {
         Response.genText(i18n.__("get_started.guidance")),
         Response.genQuickReply(i18n.__("get_started.help"), [
           {
-            title: i18n.__("menu.suggestion"),
-            payload: "CURATION"
+            title: i18n.__("menu.cardsManager"),
+            payload: "CURATION"//Insérer ici le payload, menu que ca génère
           },
           {
-            title: i18n.__("menu.help"),
+            title: i18n.__("menu.trainingSession"),
+            payload: "CARE_HELP"
+          },
+          {
+            title: i18n.__("menu.options"),
             payload: "CARE_HELP"
           }
         ])

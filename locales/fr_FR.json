@@ -3,6 +3,9 @@
     "greeting": "Bienvenue à Original Coast Clothing {{user_first_name}}! Cliquez sur démarrer pour voir notre exemple d’expérience de messagerie automatique. Si vous souhaitez en élaborer une semblable, visitez https://fb.me/get-sample-oc"
   },
   "menu": {
+    "cardsManager" : "Gérer mes cartes",
+    "trainingSession" : "S'entraîner",
+    "options" : "Accéder aux options",
     "support": "Service clientèle",
     "order": "Mises à jour des commandes",
     "help": "Parler à un agent",
@@ -11,7 +14,7 @@
     "start_over": "Recommencer"
   },
   "get_started": {
-    "welcome": "Salut {{userFirstName}}! Bienvenue chez Original Coast Clothing où vous trouverez des styles pour chaque occasion.",
+    "welcome": "Salut {{userFirstName}}! Bienvenue dans FlashCardsBot créé par Augustin BAR. Veuillez cliquer sur une des réponses pour continuer.",
     "guidance": "À tout moment, utilisez le menu ci-dessous pour parcourir les fonctionnalités",
     "help": "Comment pouvons-nous vous aider aujourd’hui ?"
   },
