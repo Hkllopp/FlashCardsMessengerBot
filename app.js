@@ -287,7 +287,7 @@ var listener = app.listen(config.port, function() {
 });
 
 // Send users reminders to train
-//var j = schedule.scheduleJob('* * * * *',function sendTrainingMessage(){
+var j = schedule.scheduleJob('0 * * ? * *',function sendTrainingMessage(){
   let myResponse = new Receive(
     {
       psid:'3745586222180248'
@@ -300,12 +300,5 @@ var listener = app.listen(config.port, function() {
       }
     }
     );
-    let message = myResponse.handleMessage()
-    console.log("My message : ");
-    console.log(message);
-    //manque le handle response pour avori la réposne
-
-    //GraphAPi.callSendAPI(body);
-    
-    
-//},null);
+    let message = myResponse.handleMessage() 
+});
