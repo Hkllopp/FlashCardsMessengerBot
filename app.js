@@ -20,7 +20,8 @@ const express = require("express"),
   User = require("./services/user"),
   config = require("./services/config"),
   i18n = require("./i18n.config"),
-  app = express();
+  app = express(),
+  schedule = require("node-schedule");
 
 var users = {};
 
@@ -112,7 +113,8 @@ app.post("/webhook", (req, res) => {
 
       // Gets the body of the webhook event
       let webhookEvent = entry.messaging[0];
-      // console.log(webhookEvent);
+      //console.log("webhook");
+      //console.log(webhookEvent);
 
       // Discard uninteresting events
       if ("read" in webhookEvent) {
@@ -149,7 +151,10 @@ app.post("/webhook", (req, res) => {
               i18n.getLocale()
             );
             let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-            return receiveMessage.handleMessage();
+            let message = receiveMessage.handleMessage();
+            console.log("message");
+            console.log(message);
+            return message;
           });
       } else {
         i18n.setLocale(users[senderPsid].locale);
@@ -160,7 +165,10 @@ app.post("/webhook", (req, res) => {
           i18n.getLocale()
         );
         let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-        return receiveMessage.handleMessage();
+        let message = receiveMessage.handleMessage();
+        console.log("message");
+        console.log(message);
+        return message;
       }
     });
   } else {
@@ -277,3 +285,27 @@ var listener = app.listen(config.port, function() {
     console.log("https://m.me/" + config.pageId);
   }
 });
+
+// Send users reminders to train
+//var j = schedule.scheduleJob('* * * * *',function sendTrainingMessage(){
+  let myResponse = new Receive(
+    {
+      psid:'3745586222180248'
+    },
+    {
+      sender: { id: '3745586222180248' },
+      recipient: { id: '105721614427415' },
+      message: {
+        quick_reply: { payload: 'ASK_TRAINING' }
+      }
+    }
+    );
+    let message = myResponse.handleMessage()
+    console.log("My message : ");
+    console.log(message);
+    //manque le handle response pour avori la réposne
+
+    //GraphAPi.callSendAPI(body);
+    
+    
+//},null);

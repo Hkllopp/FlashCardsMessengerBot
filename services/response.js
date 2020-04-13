@@ -135,16 +135,16 @@ module.exports = class Response {
 
     let curation = this.genQuickReply(i18n.__("get_started.help"), [
       {
-        title: i18n.__("menu.cardsManager"),
-        payload: "CURATION"//Insérer ici le payload, menu que ca génère
+        title: i18n.__("menu.trainingSession"),
+        payload: "TRAINING_SESSION"
       },
       {
-        title: i18n.__("menu.trainingSession"),
-        payload: "CARE_HELP"
+        title: i18n.__("menu.cardsManager"),
+        payload: "CARDS_MANAGER" //Insérer ici le payload, menu que ca génère
       },
       {
         title: i18n.__("menu.options"),
-        payload: "CARE_HELP"
+        payload: "CARDS_OPTIONS"
       }
     ]);
 

@@ -11,6 +11,8 @@
 "use strict";
 
 const Curation = require("./curation"),
+  Training = require("./training"),
+  Cards = require("./cards"),
   Order = require("./order"),
   Response = require("./response"),
   Care = require("./care"),
@@ -34,8 +36,11 @@ module.exports = class Receive {
     try {
       if (event.message) {
         let message = event.message;
+        //console.log("message");
+        //console.log(message);
 
-        if (message.quick_reply) { // Automatic responses
+        if (message.quick_reply) {
+          // Automatic responses
           responses = this.handleQuickReply();
         } else if (message.attachments) {
           responses = this.handleAttachmentMessage();
@@ -44,8 +49,15 @@ module.exports = class Receive {
         }
       } else if (event.postback) {
         responses = this.handlePostback();
+        //Postbacks occur when a postback button, Get Started button, or persistent menu item is tapped.
       } else if (event.referral) {
         responses = this.handleReferral();
+        /*This callback will occur when the user already has a thread with the bot and user comes to the thread from:
+        Following an m.me link with a referral parameter
+        Clicking on a Messenger Conversation Ad
+        Scanning a parametric Messenger Code.
+        Starting a conversation from the Discover tab.
+        Starting or resuming a conversation from the customer chat plugin.*/
       }
     } catch (error) {
       console.error(error);
@@ -54,7 +66,7 @@ module.exports = class Receive {
         will fix the issue shortly!`
       };
     }
-
+    console.log(responses);
     if (Array.isArray(responses)) {
       let delay = 0;
       for (let response of responses) {
@@ -83,9 +95,10 @@ module.exports = class Receive {
     if (
       (greeting && greeting.confidence > 0.8) ||
       message.includes("start over")
-    ) {//Recommence la boucle de dialogue
+    ) {
+      //Recommence la boucle de dialogue
       response = Response.genNuxMessage(this.user);
-    /*} else if (Number(message)) {
+      /*} else if (Number(message)) {
       response = Order.handlePayload("ORDER_NUMBER");
     } else if (message.includes("#")) {
       response = Survey.handlePayload("CSAT_SUGGESTION");
@@ -102,21 +115,20 @@ module.exports = class Receive {
         Response.genText(i18n.__("get_started.guidance")),
         Response.genQuickReply(i18n.__("get_started.help"), [
           {
-            title: i18n.__("menu.cardsManager"),
-            payload: "CURATION"//Insérer ici le payload, menu que ca génère
+            title: i18n.__("menu.trainingSession"),
+            payload: "TRAINING_SESSION"
           },
           {
-            title: i18n.__("menu.trainingSession"),
-            payload: "CARE_HELP"
+            title: i18n.__("menu.cardsManager"),
+            payload: "CARDS_MANAGER" //Insérer ici le payload, menu que ca génère
           },
           {
             title: i18n.__("menu.options"),
-            payload: "CARE_HELP"
+            payload: "CARDS_OPTIONS"
           }
         ])
       ];
     }
-
     return response;
   }
 
@@ -146,7 +158,8 @@ module.exports = class Receive {
   handleQuickReply() {
     // Get the payload of the quick reply
     let payload = this.webhookEvent.message.quick_reply.payload;
-
+    console.log("le payload est :");
+    console.log(payload);
     return this.handlePayload(payload);
   }
 
@@ -187,7 +200,14 @@ module.exports = class Receive {
       payload === "GITHUB"
     ) {
       response = Response.genNuxMessage(this.user);
-    } else if (payload.includes("CURATION") || payload.includes("COUPON")) {
+    } else if (payload.includes("TRAINING")) {
+      let training = new Training(this.user, this.webhookEvent);
+      response = training.handlePayload(payload);
+    } else if (payload.includes("Cards")) {
+      let cards = new Cards(this.user, this.webhookEvent);
+      response = cards.handlePayload(payload);
+    } else {
+      /*else if (payload.includes("CURATION") || payload.includes("COUPON")) {
       let curation = new Curation(this.user, this.webhookEvent);
       response = curation.handlePayload(payload);
     } else if (payload.includes("CARE")) {
@@ -216,7 +236,7 @@ module.exports = class Receive {
           }
         ])
       ];
-    } else {
+    }*/
       response = {
         text: `This is a default postback message for payload: ${payload}!`
       };
@@ -225,9 +245,12 @@ module.exports = class Receive {
     return response;
   }
 
-  handlePrivateReply(type,object_id) {
-    let welcomeMessage = i18n.__("get_started.welcome") + " " +
-      i18n.__("get_started.guidance") + ". " +
+  handlePrivateReply(type, object_id) {
+    let welcomeMessage =
+      i18n.__("get_started.welcome") +
+      " " +
+      i18n.__("get_started.guidance") +
+      ". " +
       i18n.__("get_started.help");
 
     let response = Response.genQuickReply(welcomeMessage, [
