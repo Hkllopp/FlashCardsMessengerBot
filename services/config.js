@@ -21,13 +21,17 @@ const ENV_VARS = [
   "APP_SECRET",
   "VERIFY_TOKEN",
   "APP_URL",
-  "SHOP_URL"
+  "SHOP_URL",
+  "DB_HOST",
+  "DB_USER",
+  "DB_PASSWORD",
+  "DB_NAME"
 ];
 
 module.exports = {
   // Messenger Platform API
   mPlatformDomain: "https://graph.facebook.com",
-  mPlatformVersion: "v3.2",
+  mPlatformVersion: "v6.0",
 
   // Page and Application information
   pageId: process.env.PAGE_ID,
@@ -47,6 +51,12 @@ module.exports = {
 
   // Preferred port (default to 3000)
   port: process.env.PORT || 3000,
+
+  // Database connection var
+  dbHost : process.env.DB_HOST,
+  dbUser : process.env.DB_USER,
+  dbPassword : process.env.DB_PASSWORD,
+  dbName : process.env.DB_NAME,
 
   get mPlatfom() {
     return this.mPlatformDomain + "/" + this.mPlatformVersion;

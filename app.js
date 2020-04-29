@@ -21,7 +21,8 @@ const express = require("express"),
   config = require("./services/config"),
   i18n = require("./i18n.config"),
   app = express(),
-  schedule = require("node-schedule");
+  schedule = require("node-schedule"),
+  Database = require("./services/database");
 
 var users = {};
 
@@ -151,9 +152,10 @@ app.post("/webhook", (req, res) => {
               i18n.getLocale()
             );
             let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-            let message = receiveMessage.handleMessage();
-            console.log("message");
-            console.log(message);
+            let response = receiveMessage.handleMessage();
+            let message  = response.message;
+            let nextPayload = response.nextPayload;
+            users[senderPsid].nextPayload  = nextPayload;
             return message;
           });
       } else {
@@ -165,7 +167,10 @@ app.post("/webhook", (req, res) => {
           i18n.getLocale()
         );
         let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-        let message = receiveMessage.handleMessage();
+        console.log(users);
+        let response = receiveMessage.handleMessage();
+        users[senderPsid].nextPayload  = response.nextPayload;
+        let message = response.message;
         console.log("message");
         console.log(message);
         return message;
@@ -286,9 +291,10 @@ var listener = app.listen(config.port, function() {
   }
 });
 
-// Send users reminders to train
-var j = schedule.scheduleJob('0 * * ? * *',function sendTrainingMessage(){
-  let myResponse = new Receive(
+// Send users reminders to train (every 30 sec : '*/30 * * ? * *')
+
+//var j = schedule.scheduleJob('*/30 * * ? * *',function sendTrainingMessage(){
+/*  let myResponse = new Receive(
     {
       psid:'3745586222180248'
     },
@@ -301,4 +307,9 @@ var j = schedule.scheduleJob('0 * * ? * *',function sendTrainingMessage(){
     }
     );
     let message = myResponse.handleMessage() 
-});
+});*/
+
+//let test = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+//test.testConnection();
+
+//GraphAPi.getMessagesFromCID();

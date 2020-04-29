@@ -5,10 +5,11 @@
 	"menu": {
 		"cardsManager": "Gérer mes cartes",
 		"trainingSession": "S'entraîner",
-		"options": "Accéder aux options",
+		"options": "Options d'entrainement",
 		"startTraining": "Commencer l'entrainement",
-		"skipTraining": "Sauter cet séance",
-		"frequencySettings": "Paramètres",
+		"skipTraining": "Sauter cette séance",
+		"back_menu" : "Vous voici de nouveau au menu !",
+		"choices" : "Que voulez-vous faire ?",
 		"support": "Service clientèle",
 		"order": "Mises à jour des commandes",
 		"help": "Parler à un agent",
@@ -23,6 +24,22 @@
 		"startTraining": "training.startTraining",
 		"skipTraining": "training.skipTraining",
 		"frequencySettings": "training.frequencySettings"
+	},
+	"cards_manager":{
+		"welcome" : "Vous voilà dans l'éditeur de cartes.",
+		"ask_user" : "Indiquez nous ce que vous voulez faire avec les réponses ci-dessous :",
+		"add_card" : "Ajouter une carte",
+		"remove_card" : "Retirer une carte",
+		"edit_card" : "Editer une carte",
+		"back_menu" : "Revenir au menu",
+		"ask_question" : "Ecrivez-moi la question de votre carte.",
+		"back_menu_proposition" : "Vous pouvez aussi revenir au menu en cliquant sur la réponse ci-dessous",
+		"question_acquired" : "Votre question a bien été écrite sur la carte !",
+		"ask_answer" :  "Veuillez maintenant entrer la réponse !",
+		"answer_acquired" : "Votre réponse a bien été écrite sur la carte !",
+		"back_menu_forced" : "Cliquez sur une des proposition pour revenir au menu",
+		"confirm_card_back_menu" : "Valider la carte et revenir au menu",
+		"discard_card_back_menu" : "Supprimer la carte et revenir au menu"
 	},
 	"get_started": {
 		"welcome": "Salut {{userFirstName}}! Bienvenue dans FlashCardsBot créé par Augustin BAR. Veuillez cliquer sur une des réponses pour continuer.",

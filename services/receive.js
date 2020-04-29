@@ -18,7 +18,9 @@ const Curation = require("./curation"),
   Care = require("./care"),
   Survey = require("./survey"),
   GraphAPi = require("./graph-api"),
-  i18n = require("../i18n.config");
+  i18n = require("../i18n.config"),
+  Database = require("./database");
+
 
 module.exports = class Receive {
   constructor(user, webhookEvent) {
@@ -61,21 +63,23 @@ module.exports = class Receive {
       }
     } catch (error) {
       console.error(error);
-      responses = {
+      messages = {
         text: `An error has occured: '${error}'. We have been notified and \
         will fix the issue shortly!`
       };
     }
-    console.log(responses);
-    if (Array.isArray(responses)) {
+    let messages = responses.message;
+    console.log(messages);
+    if (Array.isArray(messages)) {
       let delay = 0;
-      for (let response of responses) {
-        this.sendMessage(response, delay * 2000);
+      for (let message of messages) {
+        this.sendMessage(message, delay * 2000);
         delay++;
       }
     } else {
-      this.sendMessage(responses);
+      this.sendMessage(messages);
     }
+    return responses;
   }
 
   // Handles messages events with text
@@ -84,52 +88,63 @@ module.exports = class Receive {
       "Received text:",
       `${this.webhookEvent.message.text} for ${this.user.psid}`
     );
-
-    // check greeting is here and is confident
-    let greeting = this.firstEntity(this.webhookEvent.message.nlp, "greetings");
-
-    let message = this.webhookEvent.message.text.trim().toLowerCase();
-
-    let response;
-
-    if (
-      (greeting && greeting.confidence > 0.8) ||
-      message.includes("start over")
-    ) {
-      //Recommence la boucle de dialogue
-      response = Response.genNuxMessage(this.user);
-      /*} else if (Number(message)) {
-      response = Order.handlePayload("ORDER_NUMBER");
-    } else if (message.includes("#")) {
-      response = Survey.handlePayload("CSAT_SUGGESTION");
-    } else if (message.includes(i18n.__("care.help").toLowerCase())) {
-      let care = new Care(this.user, this.webhookEvent);
-      response = care.handlePayload("CARE_HELP");*/
-    } else {
-      response = [
-        Response.genText(
-          i18n.__("fallback.any", {
-            message: this.webhookEvent.message.text
-          })
-        ),
-        Response.genText(i18n.__("get_started.guidance")),
-        Response.genQuickReply(i18n.__("get_started.help"), [
-          {
-            title: i18n.__("menu.trainingSession"),
-            payload: "TRAINING_SESSION"
-          },
-          {
-            title: i18n.__("menu.cardsManager"),
-            payload: "CARDS_MANAGER" //Insérer ici le payload, menu que ca génère
-          },
-          {
-            title: i18n.__("menu.options"),
-            payload: "CARDS_OPTIONS"
-          }
-        ])
-      ];
+    /* Check if the reply was "expected" and if so, binds it a payload */
+    if (this.user.nextPayload!=""){
+      console.log("checkpoint");
+      console.log("Received Payload:", `${this.user.nextPayload}`);
+      let message = this.handlePayload(this.user.nextPayload);
+      return message;
     }
-    return response;
+      else{
+      // check greeting is here and is confident
+      let greeting = this.firstEntity(this.webhookEvent.message.nlp, "greetings");
+
+      let message = this.webhookEvent.message.text.trim().toLowerCase();
+
+      let response;
+
+      if (
+        (greeting && greeting.confidence > 0.8) ||
+        message.includes("start over")
+      ) {
+        //Recommence la boucle de dialogue
+        response = Response.genNuxMessage(this.user);
+        /*} else if (Number(message)) {
+        response = Order.handlePayload("ORDER_NUMBER");
+      } else if (message.includes("#")) {
+        response = Survey.handlePayload("CSAT_SUGGESTION");
+      } else if (message.includes(i18n.__("care.help").toLowerCase())) {
+        let care = new Care(this.user, this.webhookEvent);
+        response = care.handlePayload("CARE_HELP");*/
+      } else {
+        response = [
+          Response.genText(
+            i18n.__("fallback.any", {
+              message: this.webhookEvent.message.text
+            })
+          ),
+          Response.genText(i18n.__("get_started.guidance")),
+          Response.genQuickReply(i18n.__("get_started.help"), [
+            {
+              title: i18n.__("menu.trainingSession"),
+              payload: "TRAINING_SESSION"
+            },
+            {
+              title: i18n.__("menu.cardsManager"),
+              payload: "CARDS_MANAGER" //Insérer ici le payload, menu que ca génère
+            },
+            {
+              title: i18n.__("menu.options"),
+              payload: "TRAINING_SETTINGS"
+            }
+          ])
+        ];
+      }
+      return {
+        message : response,
+        nextPayload : ""
+      };
+    }
   }
 
   // Handles mesage events with attachments
@@ -151,7 +166,10 @@ module.exports = class Receive {
       }
     ]);
 
-    return response;
+    return {
+        message: response,
+        nextPayload: ""
+      };
   }
 
   // Handles mesage events with quick replies
@@ -203,7 +221,7 @@ module.exports = class Receive {
     } else if (payload.includes("TRAINING")) {
       let training = new Training(this.user, this.webhookEvent);
       response = training.handlePayload(payload);
-    } else if (payload.includes("Cards")) {
+    } else if (payload.includes("CARDS")) {
       let cards = new Cards(this.user, this.webhookEvent);
       response = cards.handlePayload(payload);
     } else {
@@ -241,7 +259,6 @@ module.exports = class Receive {
         text: `This is a default postback message for payload: ${payload}!`
       };
     }
-
     return response;
   }
 
@@ -308,5 +325,13 @@ module.exports = class Receive {
 
   firstEntity(nlp, name) {
     return nlp && nlp.entities && nlp.entities[name] && nlp.entities[name][0];
+  }
+
+  getReplyPayload(uid)
+  {
+    let db = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+    let query = "SELECT NextPayload FROM User WHERE FbId LIKE" +  uid.toString;
+    let response  = db.query(query);
+    console.log(response);
   }
 };

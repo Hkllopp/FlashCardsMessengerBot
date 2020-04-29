@@ -324,4 +324,69 @@ module.exports = class GraphAPi {
       }
     );
   }
+
+  /* Not used. Try to get user data, conversation id, message id, etc... */
+  /*static getMessageFromMID(mid){
+    request(
+      {
+        uri: `${config.mPlatfom}/${mid}`,
+        qs: {
+          access_token: config.pageAccesToken
+        },
+        method: "GET"
+      },
+      error => {
+        if (error) {
+          console.error("Unable to get message:", error);
+        }
+      }
+    ).on("data", function(body) {
+      console.log("la réponse est");
+      body = Buffer.from(body).toString();
+      console.log(JSON.parse(body));
+    });
+  }
+
+  static getConversationID(psid)
+  {
+  request(
+    {
+      qs: {
+        access_token: config.pageAccesToken
+      },
+      uri: `${config.mPlatfom}/${config.pageId}/conversations?fields=message&user_id=${psid}`,
+      method: "GET"
+    },
+    error => {
+      if (error) {
+        console.error("Unable to get message:", error);
+      }
+    }
+  ).on("data", function(body) {
+    console.log("la réponse est");
+    body = Buffer.from(body).toString();
+    console.log(JSON.parse(body));
+  });
+}
+
+static getMessagesFromCID(mid){
+  request(
+    {
+      uri: `${config.mPlatfom}/${mid}`,
+      qs: {
+        access_token: config.pageAccesToken
+      },
+      method: "GET"
+    },
+    error => {
+      if (error) {
+        console.error("Unable to get message:", error);
+      }
+    }
+  ).on("data", function(body) {
+    console.log("la réponse est");
+    body = Buffer.from(body).toString();
+    console.log(JSON.parse(body));
+  });
+}*/
 };

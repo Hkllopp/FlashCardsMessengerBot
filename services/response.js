@@ -144,7 +144,7 @@ module.exports = class Response {
       },
       {
         title: i18n.__("menu.options"),
-        payload: "CARDS_OPTIONS"
+        payload: "TRAINING_SETTINGS"
       }
     ]);
 

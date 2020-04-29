@@ -23,6 +23,7 @@ module.exports = class Training {
 
   handlePayload(payload) {
     let response;
+    let nextPayload = "";
     switch (payload) {
       case "ASK_TRAINING"://SCHEDULED_ASKING
         response = [
@@ -42,7 +43,11 @@ module.exports = class Training {
               payload: "SKIP_TRAINING"
             },
             {
-              title: i18n.__("menu.frequencySettings"),
+              title: i18n.__("menu.cardsManager"),
+              payload: "CARDS_MANAGER"
+            },
+            {
+              title: i18n.__("menu.options"),
               payload: "TRAINING_SETTINGS"
             }
           ])
@@ -58,6 +63,9 @@ module.exports = class Training {
         //Paramètres des entrainements
         break;
     }
-    return response;
+    return {
+      message : response,
+      nextPayload : nextPayload
+    };
   }
 };
