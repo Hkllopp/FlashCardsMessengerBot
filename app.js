@@ -86,7 +86,6 @@ app.post("/webhook", (req, res) => {
 
     // Iterates over each entry - there may be multiple if batched
     body.entry.forEach(function(entry) {
-      console.log("loop");
       if ("changes" in entry) {
         // Handle Page Changes event
         let receiveMessage = new Receive();
@@ -130,10 +129,12 @@ app.post("/webhook", (req, res) => {
 
       // Get the sender PSID
       let senderPsid = webhookEvent.sender.id;
-
       if (!(senderPsid in users)) {
-        let user = new User(senderPsid);
+        // check if the user is in the db
+        let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+        dbConnection.promisedMakeSureUserInDB(senderPsid);
 
+        let user = new User(senderPsid);
         GraphAPi.getUserProfile(senderPsid)
           .then(userProfile => {
             user.setProfile(userProfile);
@@ -144,6 +145,7 @@ app.post("/webhook", (req, res) => {
           })
           .finally(() => {
             users[senderPsid] = user;
+            //users[senderPsid].nextPayload = "";
             i18n.setLocale(user.locale);
             console.log(
               "New Profile PSID:",
@@ -155,7 +157,6 @@ app.post("/webhook", (req, res) => {
             let response = receiveMessage.handleMessage();
             let message  = response.message;
             let nextPayload = response.nextPayload;
-            users[senderPsid].nextPayload  = nextPayload;
             return message;
           });
       } else {
@@ -167,12 +168,12 @@ app.post("/webhook", (req, res) => {
           i18n.getLocale()
         );
         let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-        console.log(users);
-        let response = receiveMessage.handleMessage();
-        users[senderPsid].nextPayload  = response.nextPayload;
-        let message = response.message;
-        console.log("message");
-        console.log(message);
+        console.log(users[senderPsid]);
+        let value = receiveMessage.handleMessage();
+        users[senderPsid].nextPayload  = value.user.nextPayload;
+        let message = value.message;
+        console.log("recu par app de handleMessage");
+        console.log(value);
         return message;
       }
     });

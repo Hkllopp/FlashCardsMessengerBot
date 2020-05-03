@@ -23,7 +23,7 @@ module.exports = class Training {
 
   handlePayload(payload) {
     let response;
-    let nextPayload = "";
+    this.user.nextPayload = "";
     switch (payload) {
       case "ASK_TRAINING"://SCHEDULED_ASKING
         response = [
@@ -65,7 +65,7 @@ module.exports = class Training {
     }
     return {
       message : response,
-      nextPayload : nextPayload
+      user : this.user
     };
   }
 };

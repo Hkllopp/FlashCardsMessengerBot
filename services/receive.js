@@ -33,7 +33,7 @@ module.exports = class Receive {
   handleMessage() {
     let event = this.webhookEvent;
 
-    let responses;
+    let value, responses;
 
     try {
       if (event.message) {
@@ -43,11 +43,23 @@ module.exports = class Receive {
 
         if (message.quick_reply) {
           // Automatic responses
-          responses = this.handleQuickReply();
+          value = this.handleQuickReply();
+          console.log("recu par receive (handleMessage) de handleQuickReply");
+          console.log(value);
+          responses = value.message;
+          this.user = value.user;
         } else if (message.attachments) {
-          responses = this.handleAttachmentMessage();
+          value = this.handleAttachmentMessage();
+          console.log("recu par receive (handleMessage) de handleAttachmentMessage");
+          console.log(value);
+          responses = value.message;
+          this.user = value.user;
         } else if (message.text) {
-          responses = this.handleTextMessage();
+          value = this.handleTextMessage();
+          responses = value.message;
+          this.user = value.user;
+          console.log("recu par receive (handleMessage) de handleTextMessage");
+          console.log(value);
         }
       } else if (event.postback) {
         responses = this.handlePostback();
@@ -68,18 +80,22 @@ module.exports = class Receive {
         will fix the issue shortly!`
       };
     }
-    let messages = responses.message;
-    console.log(messages);
-    if (Array.isArray(messages)) {
+    if (Array.isArray(responses)) {
       let delay = 0;
-      for (let message of messages) {
-        this.sendMessage(message, delay * 2000);
+      for (let message of responses) {
+        this.sendMessage(message, delay * 200); // At the origin, it was *2000
         delay++;
       }
     } else {
-      this.sendMessage(messages);
+      this.sendMessage(responses);
     }
-    return responses;
+    let retour ={
+      message : responses,
+      user : this.user
+    };
+    console.log("retourné par Receive (handleMessage) :");
+    console.log(retour);
+    return retour;
   }
 
   // Handles messages events with text
@@ -140,10 +156,13 @@ module.exports = class Receive {
           ])
         ];
       }
-      return {
+      let retour ={
         message : response,
-        nextPayload : ""
+        user : this.user
       };
+      console.log("retourné par Receive (handleTextMessage) :");
+      console.log(retour);
+      return retour;
     }
   }
 
@@ -166,10 +185,13 @@ module.exports = class Receive {
       }
     ]);
 
-    return {
-        message: response,
-        nextPayload: ""
-      };
+    let retour ={
+      message : response,
+      user : this.user
+    };
+    console.log("retourné par Receive (handleAttachmentMessage) :");
+    console.log(retour);
+    return retour;
   }
 
   // Handles mesage events with quick replies
@@ -209,7 +231,7 @@ module.exports = class Receive {
     // Log CTA event in FBA
     GraphAPi.callFBAEventsAPI(this.user.psid, payload);
 
-    let response;
+    let value,response;
 
     // Set the response based on the payload
     if (
@@ -220,10 +242,14 @@ module.exports = class Receive {
       response = Response.genNuxMessage(this.user);
     } else if (payload.includes("TRAINING")) {
       let training = new Training(this.user, this.webhookEvent);
-      response = training.handlePayload(payload);
+      value = training.handlePayload(payload);
+      this.user = value.user;
+      response = value.message;
     } else if (payload.includes("CARDS")) {
       let cards = new Cards(this.user, this.webhookEvent);
-      response = cards.handlePayload(payload);
+      value = cards.handlePayload(payload);
+      this.user = value.user;
+      response = value.message;
     } else {
       /*else if (payload.includes("CURATION") || payload.includes("COUPON")) {
       let curation = new Curation(this.user, this.webhookEvent);
@@ -259,7 +285,13 @@ module.exports = class Receive {
         text: `This is a default postback message for payload: ${payload}!`
       };
     }
-    return response;
+    let retour ={
+      message : response,
+      user : this.user
+    };
+    console.log("retourné par Receive (handlePayload) :");
+    console.log(retour);
+    return retour;
   }
 
   handlePrivateReply(type, object_id) {

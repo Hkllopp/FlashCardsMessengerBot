@@ -23,7 +23,7 @@ module.exports = class Cards {
 
   handlePayload(payload) {
     let response;
-    let nextPayload = "";
+    this.user.nextPayload = "";
     switch (payload) {
       case "CARDS_MANAGER":
         response = [
@@ -47,7 +47,7 @@ module.exports = class Cards {
             }
           ])
         ];
-        nextPayload = "";
+        this.user.nextPayload = "";
           break;
       case "CARDS_ADD":
         response = [
@@ -59,7 +59,7 @@ module.exports = class Cards {
             }
           ])
         ];
-        nextPayload = "CARDS_QUESTION";
+        this.user.nextPayload = "CARDS_QUESTION";
         // Demander à l'utilisateur une question
         // Demander à l'utilisateur une réponse
         // Insérer la carte
@@ -98,7 +98,7 @@ module.exports = class Cards {
               payload: "TRAINING_SETTINGS"
             }]
           )];
-          nextPayload = "";
+          this.user.nextPayload = "";
         // Revenir au menu principal
         break;
       case "CARDS_QUESTION":
@@ -112,7 +112,7 @@ module.exports = class Cards {
             }
           ])
         ];
-        nextPayload = "CARDS_ANSWER";
+        this.user.nextPayload = "CARDS_ANSWER";
         break;
       case "CARDS_ANSWER":
         response = [
@@ -129,12 +129,15 @@ module.exports = class Cards {
             },
           ])
         ];
-        nextPayload = "";
+        this.user.nextPayload = "";
         break;
     }
-    return {
+    let retour ={
       message : response,
-      nextPayload : nextPayload
+      user : this.user
     };
+    console.log("retourné par Cards :");
+    console.log(retour);
+    return retour;
   }
 };

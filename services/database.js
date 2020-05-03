@@ -10,7 +10,8 @@
 
 "use strict";
 
-const mysql = require('mysql');
+const mysql = require('mysql'),
+  promMysql = require('promise-mysql');
 
 module.exports = class Database {
     constructor(host, user, password, database) {
@@ -39,8 +40,22 @@ module.exports = class Database {
           connection.end();
     }
 
-    query(query)
+    checkUserInDB(userID, callback){
+      let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";
+      this.query(query,function(result)
+      {
+        return callback(result);
+      });
+    }
+
+    insertUserInDB(userId)
     {
+      let query = "INSERT INTO User(FbId) VALUES (\"" + userId + "\");";
+      console.log(query);
+      this.query(query,function(){});
+    }
+
+    query(query, callback){
         var connection = mysql.createConnection({
             host     : this.host,
             user     : this.user,
@@ -50,15 +65,69 @@ module.exports = class Database {
            
           connection.connect();
            
-          var results = connection.query(query, function (error, results, fields) {
+          connection.query(query, function (error, results) {
             if (error) throw error;
             console.log('The query returns: ');
             console.log(results);
-          }).results;
-           
+            return callback(results);
+          });
           connection.end();
-          return results;
     }
-    
 
+    async promisedCheckUserInDB(userID){
+      let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";
+      let promise = await this.promisedQuery(query);
+      console.log(promise);
+      if (promise.length > 0)
+      {
+        return true;
+      }
+      else{
+        return false;
+      }
     }
+
+    async promisedMakeSureUserInDB(userID)
+    {
+      let inDB = await this.promisedCheckUserInDB(userID);
+      console.log("l'utilisateur est il enregistré dans la database ?", inDB);
+      if (!inDB)
+      {
+        // User non trouvé dans la BD, il faut donc en créer un !
+        console.log("USER NON TROUVE DANS LA BD !");
+        let query = "INSERT INTO User(FbId) VALUES (\"" + userID + "\");";
+        console.log(query);
+        let promise = await this.promisedQuery(query);
+      }
+      else
+      {
+        console.log("USER TROUVE DANS LA BD !");
+      }
+      return ("Done");
+    }
+
+    async promisedQuery(query){
+      try {
+        const connection = mysql.createConnection({  
+          host     : this.host,
+          user     : this.user,
+          password : this.password,
+          database : this.database
+        });
+
+        return new Promise(function(resolve, reject) {
+            connection.connect(function(err) {
+                if (err) reject(err);
+
+                connection.query(query, function (err, result) {
+                    if (err) reject(err);
+                    connection.end();
+                    resolve(JSON.parse(JSON.stringify(result)));
+                });
+            });
+        });
+    } catch {
+        console.error("async err: " + err);
+    }
+    }   
+  }
