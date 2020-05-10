@@ -40,21 +40,37 @@ module.exports = class Database {
           connection.end();
     }
 
-    checkUserInDB(userID, callback){
+    // Obsolete car sans promises
+    /*checkUserInDB(userID, callback){
       let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";
       this.query(query,function(result)
       {
         return callback(result);
       });
-    }
+    }*/
 
-    insertUserInDB(userId)
+    // Obsolete car sans promises
+    /*insertUserInDB(userId)
     {
       let query = "INSERT INTO User(FbId) VALUES (\"" + userId + "\");";
       console.log(query);
       this.query(query,function(){});
+    }*/
+    
+    async insertCardInDB(user)
+    {
+      let query = "INSERT INTO Card(Question,Answer,User) VALUES (\"" + 
+      user.cardQuestion + "\",\""+
+      user.cardAnswer + "\",(SELECT id FROM User WHERE FbId = "+
+      user.psid + "));";
+
+      console.log(query);
+      let promise = await this.promisedQuery(query);
+      console.log("Insertion de la carte réussie du user :",user.psid);
     }
 
+    // Obsolete car sans promises
+    /*
     query(query, callback){
         var connection = mysql.createConnection({
             host     : this.host,
@@ -72,7 +88,7 @@ module.exports = class Database {
             return callback(results);
           });
           connection.end();
-    }
+    }*/
 
     async promisedCheckUserInDB(userID){
       let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";

@@ -314,3 +314,5 @@ var listener = app.listen(config.port, function() {
 //test.testConnection();
 
 //GraphAPi.getMessagesFromCID();
+console.log("type de receive (app) : ");
+console.log(typeof Receive);

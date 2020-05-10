@@ -12,8 +12,10 @@
 
 // Imports dependencies
 const Response = require("./response"),
+  Receive = require("./receive"),
   config = require("./config"),
-  i18n = require("../i18n.config");
+  i18n = require("../i18n.config"),
+  Database = require("./database");
 
 module.exports = class Cards {
     constructor(user, webhookEvent) {
@@ -22,31 +24,13 @@ module.exports = class Cards {
       }
 
   handlePayload(payload) {
+    console.log("type de receive : ");
+    console.log(typeof Receive);
     let response;
     this.user.nextPayload = "";
     switch (payload) {
       case "CARDS_MANAGER":
-        response = [
-          Response.genText(i18n.__("cards_manager.welcome")),
-          Response.genQuickReply(i18n.__("cards_manager.ask_user"), [
-            {
-              title: i18n.__("cards_manager.add_card"),
-              payload: "CARDS_ADD"
-            },
-            {
-              title: i18n.__("cards_manager.remove_card"),
-              payload: "CARDS_REMOVE"
-            },
-            {
-              title: i18n.__("cards_manager.edit_card"),
-              payload: "CARDS_EDIT"
-            },
-            {
-              title: i18n.__("cards_manager.back_menu"),
-              payload: "CARDS_BACK"
-            }
-          ])
-        ];
+        response = cardsManagerMenu;
         this.user.nextPayload = "";
           break;
       case "CARDS_ADD":
@@ -102,6 +86,7 @@ module.exports = class Cards {
         // Revenir au menu principal
         break;
       case "CARDS_QUESTION":
+        this.user.cardQuestion = this.webhookEvent.message.text;
         response = [
           Response.genText(i18n.__("cards_manager.question_acquired")),
           Response.genText(i18n.__("cards_manager.ask_answer")),
@@ -115,22 +100,48 @@ module.exports = class Cards {
         this.user.nextPayload = "CARDS_ANSWER";
         break;
       case "CARDS_ANSWER":
+        this.user.cardAnswer = this.webhookEvent.message.text;
         response = [
           Response.genText(i18n.__("cards_manager.answer_acquired")),
-          Response.genQuickReply(i18n.__("cards_manager.back_menu_proposition"), [
+          Response.genQuickReply(i18n.__("cards_manager.back_menu_forced"), [
             {
               title: i18n.__("cards_manager.confirm_card_back_menu"),
-              payload: "CARDS_MANAGER"
+              payload: "CARDS_SUBMIT_CARD"
               //Insérer la carte
             },
             {
               title: i18n.__("cards_manager.discard_card_back_menu"),
-              payload: "CARDS_MANAGER"
+              payload: "CARDS_DISCARD_CARD"
             },
           ])
         ];
         this.user.nextPayload = "";
         break;
+      case "CARDS_SUBMIT_CARD":
+        // Insérer ici la carte
+        try{
+          let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+          dbConnection.insertCardInDB(this.user);
+        } catch (err) {
+          console.log("Insertion card failed:", err);
+        }
+        response = [
+          Response.genText(i18n.__("cards_manager.confirm_submitted_card")),
+          Response.genText(i18n.__("cards_manager.back_menu_guidance"))
+        ].concat(cardsManagerMenu);
+          console.log("reponse =");
+          console.log(response);
+          this.user.nextPayload = "";
+          break;
+      case "CARDS_DISCARD_CARD":
+        this.user.cardAnswer = "";
+        this.user.cardQuestion = "";
+        response = [
+          Response.genText(i18n.__("cards_manager.confirm_discard_card")),
+          Response.genText(i18n.__("cards_manager.back_menu_guidance"))
+        ].concat(cardsManagerMenu);
+          this.user.nextPayload = "";
+          break;
     }
     let retour ={
       message : response,
@@ -140,4 +151,27 @@ module.exports = class Cards {
     console.log(retour);
     return retour;
   }
-};
+}
+
+let cardsManagerMenu = [
+  Response.genText(i18n.__("cards_manager.welcome")),
+  Response.genQuickReply(i18n.__("cards_manager.ask_user"), [
+    {
+      title: i18n.__("cards_manager.add_card"),
+      payload: "CARDS_ADD"
+    },
+    {
+      title: i18n.__("cards_manager.remove_card"),
+      payload: "CARDS_REMOVE"
+    },
+    {
+      title: i18n.__("cards_manager.edit_card"),
+      payload: "CARDS_EDIT"
+    },
+    {
+      title: i18n.__("cards_manager.back_menu"),
+      payload: "CARDS_BACK"
+    }
+  ]
+)];
+

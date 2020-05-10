@@ -39,7 +39,10 @@
 		"answer_acquired" : "Votre réponse a bien été écrite sur la carte !",
 		"back_menu_forced" : "Avant de revenir au menu, veuillez nous indiquer ce que vous voulez faire de la carte.",
 		"confirm_card_back_menu" : "Valider la carte",
-		"discard_card_back_menu" : "Supprimer la carte"
+		"discard_card_back_menu" : "Supprimer la carte",
+		"confirm_submitted_card" : "Votre carte a bien été enregistrée",
+		"confirm_discard_card" : "Votre carte a bien été supprimée",
+		"back_menu_guidance" : "Vous allez être redirigé vers le menu"
 	},
 	"get_started": {
 		"welcome": "Salut {{userFirstName}}! Bienvenue dans FlashCardsBot créé par Augustin BAR. Veuillez cliquer sur une des réponses pour continuer.",

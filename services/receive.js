@@ -22,11 +22,12 @@ const Curation = require("./curation"),
   Database = require("./database");
 
 
-module.exports = class Receive {
+ class Receive {
   constructor(user, webhookEvent) {
     this.user = user;
     this.webhookEvent = webhookEvent;
   }
+
 
   // Check if the event is a message or postback and
   // call the appropriate handler function
@@ -75,7 +76,7 @@ module.exports = class Receive {
       }
     } catch (error) {
       console.error(error);
-      messages = {
+      responses = {
         text: `An error has occured: '${error}'. We have been notified and \
         will fix the issue shortly!`
       };
@@ -367,3 +368,4 @@ module.exports = class Receive {
     console.log(response);
   }
 };
+module.exports = Receive;
