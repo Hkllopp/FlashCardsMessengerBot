@@ -62,28 +62,29 @@ module.exports = class Cards {
         // Edit la carte 
         break;
       case "CARDS_BACK":
+        // Revenir au menu principal
         response = [
-          Response.genText(i18n.__("menu.back_menu")),
-          Response.genQuickReply(i18n.__("menu.choices"), [
+          Response.genText(i18n.__("training.back_menu")),
+          Response.genQuickReply(i18n.__("training.choices"), [
             {
-              title: i18n.__("menu.trainingSession"),
+              title: i18n.__("training.trainingSession"),
               payload: "START_TRAINING"
             },
             {
-              title: i18n.__("menu.skipTraining"),
+              title: i18n.__("training.skipTraining"),
               payload: "SKIP_TRAINING"
             },
             {
-              title: i18n.__("menu.cardsManager"),
+              title: i18n.__("training.cardsManager"),
               payload: "CARDS_MANAGER"
             },
             {
-              title: i18n.__("menu.options"),
+              title: i18n.__("training.options"),
               payload: "TRAINING_SETTINGS"
             }]
           )];
           this.user.nextPayload = "";
-        // Revenir au menu principal
+        
         break;
       case "CARDS_QUESTION":
         this.user.cardQuestion = this.webhookEvent.message.text;

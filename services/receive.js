@@ -143,15 +143,15 @@ const Curation = require("./curation"),
           Response.genText(i18n.__("get_started.guidance")),
           Response.genQuickReply(i18n.__("get_started.help"), [
             {
-              title: i18n.__("menu.trainingSession"),
+              title: i18n.__("training.trainingSession"),
               payload: "TRAINING_SESSION"
             },
             {
-              title: i18n.__("menu.cardsManager"),
+              title: i18n.__("training.cardsManager"),
               payload: "CARDS_MANAGER" //Insérer ici le payload, menu que ca génère
             },
             {
-              title: i18n.__("menu.options"),
+              title: i18n.__("training.options"),
               payload: "TRAINING_SETTINGS"
             }
           ])

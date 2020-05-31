@@ -57,9 +57,17 @@ module.exports = class Database {
       let query = "SELECT FbId,Frequency FROM User;";
       console.log(query);
       let promise = await this.promisedQuery(query);
-      console.log(promise);
-      //let arrayPromise = JSON.stringify(promise).slice(1,-1).replace('},','};').split(';');
       return promise;
+    }
+
+    async insertFrequencyInDB(user)
+    {
+      let query = "UPDATE User SET Frequency=\"" + 
+      user.cardQuestion + "\" WHERE FbId ="+user.psid;
+
+      console.log(query);
+      let promise = await this.promisedQuery(query);
+      console.log("Insertion de la carte réussie du user :",user.psid);
     }
 
     async promisedCheckUserInDB(userID){
