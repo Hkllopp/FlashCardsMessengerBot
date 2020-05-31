@@ -39,23 +39,6 @@ module.exports = class Database {
            
           connection.end();
     }
-
-    // Obsolete car sans promises
-    /*checkUserInDB(userID, callback){
-      let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";
-      this.query(query,function(result)
-      {
-        return callback(result);
-      });
-    }*/
-
-    // Obsolete car sans promises
-    /*insertUserInDB(userId)
-    {
-      let query = "INSERT INTO User(FbId) VALUES (\"" + userId + "\");";
-      console.log(query);
-      this.query(query,function(){});
-    }*/
     
     async insertCardInDB(user)
     {
@@ -69,26 +52,15 @@ module.exports = class Database {
       console.log("Insertion de la carte réussie du user :",user.psid);
     }
 
-    // Obsolete car sans promises
-    /*
-    query(query, callback){
-        var connection = mysql.createConnection({
-            host     : this.host,
-            user     : this.user,
-            password : this.password,
-            database : this.database
-          });
-           
-          connection.connect();
-           
-          connection.query(query, function (error, results) {
-            if (error) throw error;
-            console.log('The query returns: ');
-            console.log(results);
-            return callback(results);
-          });
-          connection.end();
-    }*/
+    async getUsersTrainingSettings()
+    {
+      let query = "SELECT FbId,Frequency FROM User;";
+      console.log(query);
+      let promise = await this.promisedQuery(query);
+      console.log(promise);
+      //let arrayPromise = JSON.stringify(promise).slice(1,-1).replace('},','};').split(';');
+      return promise;
+    }
 
     async promisedCheckUserInDB(userID){
       let query = "SELECT Id, FbId FROM User WHERE FbId LIKE \"" + userID + "\";";

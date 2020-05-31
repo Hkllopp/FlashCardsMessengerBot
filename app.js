@@ -264,6 +264,39 @@ function verifyRequestSignature(req, res, buf) {
   }
 }
 
+async function createUsersJobs()
+{
+  let db = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+  let responsePromise  = db.getUsersTrainingSettings();
+  let response  = await responsePromise;
+  
+  for (let userSetting of response)
+  {
+    let userId = userSetting.FbId;
+    let jobName = "job" + userId; // Every jobs created from users settings in db will be called "job" + [userId] as it'll be unique
+    let userFrequency = userSetting.Frequency;
+    schedule.scheduleJob(
+      jobName,
+      userFrequency,
+      function sendTrainingMessage()
+        {
+          let myResponse = new Receive(
+            {
+              psid:userId
+            },
+            {
+              sender: { id: userId },
+              recipient: { id: '105721614427415' },
+              message: {
+                quick_reply: { payload: 'ASK_TRAINING' }
+              }
+            }
+            );
+          myResponse.handleMessage()
+        });
+  }
+}
+
 // Check if all environment variables are set
 config.checkEnvVariables();
 
@@ -294,8 +327,8 @@ var listener = app.listen(config.port, function() {
 
 // Send users reminders to train (every 30 sec : '*/30 * * ? * *')
 
-//var j = schedule.scheduleJob('*/30 * * ? * *',function sendTrainingMessage(){
-/*  let myResponse = new Receive(
+//var j = schedule.scheduleJob('0 0 0 ? * * *',function sendTrainingMessage(){
+  /*let myResponse = new Receive(
     {
       psid:'3745586222180248'
     },
@@ -310,9 +343,12 @@ var listener = app.listen(config.port, function() {
     let message = myResponse.handleMessage() 
 });*/
 
+//console.log(schedule.scheduledJobs["job651651651"].nextInvocation());
+
 //let test = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
 //test.testConnection();
 
-//GraphAPi.getMessagesFromCID();
-console.log("type de receive (app) : ");
-console.log(typeof Receive);
+createUsersJobs();
+
+
+
