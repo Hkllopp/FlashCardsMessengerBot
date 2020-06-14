@@ -45,22 +45,22 @@ const Curation = require("./curation"),
         if (message.quick_reply) {
           // Automatic responses
           value = this.handleQuickReply();
-          console.log("recu par receive (handleMessage) de handleQuickReply");
-          console.log(value);
+          //console.log("recu par receive (handleMessage) de handleQuickReply");
+          //console.log(value);
           responses = value.message;
           this.user = value.user;
         } else if (message.attachments) {
           value = this.handleAttachmentMessage();
-          console.log("recu par receive (handleMessage) de handleAttachmentMessage");
-          console.log(value);
+          //console.log("recu par receive (handleMessage) de handleAttachmentMessage");
+          //console.log(value);
           responses = value.message;
           this.user = value.user;
         } else if (message.text) {
           value = this.handleTextMessage();
           responses = value.message;
           this.user = value.user;
-          console.log("recu par receive (handleMessage) de handleTextMessage");
-          console.log(value);
+          //console.log("recu par receive (handleMessage) de handleTextMessage");
+          //console.log(value);
         }
       } else if (event.postback) {
         responses = this.handlePostback();
@@ -94,8 +94,8 @@ const Curation = require("./curation"),
       message : responses,
       user : this.user
     };
-    console.log("retourné par Receive (handleMessage) :");
-    console.log(retour);
+    //console.log("retourné par Receive (handleMessage) :");
+    //console.log(retour);
     return retour;
   }
 
@@ -144,7 +144,7 @@ const Curation = require("./curation"),
           Response.genQuickReply(i18n.__("get_started.help"), [
             {
               title: i18n.__("training.trainingSession"),
-              payload: "TRAINING_SESSION"
+              payload: "START_TRAINING"
             },
             {
               title: i18n.__("training.cardsManager"),
@@ -161,8 +161,8 @@ const Curation = require("./curation"),
         message : response,
         user : this.user
       };
-      console.log("retourné par Receive (handleTextMessage) :");
-      console.log(retour);
+      //console.log("retourné par Receive (handleTextMessage) :");
+      //console.log(retour);
       return retour;
     }
   }
@@ -190,8 +190,8 @@ const Curation = require("./curation"),
       message : response,
       user : this.user
     };
-    console.log("retourné par Receive (handleAttachmentMessage) :");
-    console.log(retour);
+    //console.log("retourné par Receive (handleAttachmentMessage) :");
+    //console.log(retour);
     return retour;
   }
 
@@ -290,8 +290,8 @@ const Curation = require("./curation"),
       message : response,
       user : this.user
     };
-    console.log("retourné par Receive (handlePayload) :");
-    console.log(retour);
+    //console.log("retourné par Receive (handlePayload) :");
+    //console.log(retour);
     return retour;
   }
 

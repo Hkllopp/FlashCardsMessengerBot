@@ -20,24 +20,24 @@ A table of cumulative probabilities is created.
 We run a random between 0 and the max cumulative probability. The random number corresponds to the chosen card.
 Repeat the operation. If we fall on the same card again, we restart the operation.
 
-Ex : 
+Eg : 
 Card1 --> p = 0.2
 Card2 --> p = 0.3
 Card3 --> p = 1
 
-Premier tableau :
+First array :
 [[Card1,Card2,Card3],[0.2,0.3,1]]
 Card1	0.2
 Card2	0.3
 Card3	1
 
-Second tableau :
+Second array :
 [[Card1,Card2,Card3],[0.2,0.5,1.5]]
 Card1	0.2
 Card2	0.5
 Card3	1.5
 
-On lance un random x entre 0 et 1.5 :
+We guess a random number x between 0 and 1.5 :
 0.0 < x < 0.2 --> Card1
 0.2 < x < 0.5 --> Card2
 0.5 < x < 1.5 --> Card3

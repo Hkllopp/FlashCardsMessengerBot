@@ -125,5 +125,58 @@ module.exports = class Database {
     } catch {
         console.error("async err: " + err);
     }
-    }   
+    } 
+
+    async getuserTrainingCardsCumuledProbablities(user)
+    {
+      let query = "SELECT ID,Probability FROM card WHERE User = (SELECT id FROM User WHERE FbId = "+
+      user.psid + ");";
+      console.log(query);
+      let probability = await this.promisedQuery(query);
+      var cumulatedArray = [];
+      var cumulatedProba = 0
+      for (let i = 0;i<probability.length;i++)
+      {
+        cumulatedProba += probability[i].Probability;
+        cumulatedArray[i] = 
+        {
+          "id" : i,
+          "cardId" : probability[i].ID,
+          "probability" : cumulatedProba
+        }
+      }
+      return cumulatedArray;
+    }
+    
+    async buildUserTrainingSet(user)
+    {
+      let cumuledProbaArray  = await this.getuserTrainingCardsCumuledProbablities(user);
+      let chosenCards = await this.choseRandomCards(cumuledProbaArray, 5);
+      return chosenCards;
+    }
+
+    async choseRandomCards(cumuledProbaArray, cardsNumber)
+    {
+      let randomProba = 0;
+      let maxProba = cumuledProbaArray[cumuledProbaArray.length-1].probability;
+      let chosenCards = [];
+
+      console.log(cumuledProbaArray);
+      for (let i = 0;i<cardsNumber;i++)
+      {
+        randomProba = (Math.random() * maxProba);
+        // Guessing wich card is chosen in the cumulated proba array
+        for (let j = 0;j<cumuledProbaArray.length;j++)
+        {
+          if (randomProba < cumuledProbaArray[j].probability)
+          {
+            chosenCards[i] = cumuledProbaArray[j];
+            // Insert here check of identical cards
+            break;
+          }
+        }
+      }
+      return chosenCards;
+    }
+
   }

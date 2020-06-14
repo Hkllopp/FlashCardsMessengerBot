@@ -71,10 +71,6 @@ module.exports = class Cards {
               payload: "START_TRAINING"
             },
             {
-              title: i18n.__("training.skipTraining"),
-              payload: "SKIP_TRAINING"
-            },
-            {
               title: i18n.__("training.cardsManager"),
               payload: "CARDS_MANAGER"
             },
@@ -108,7 +104,6 @@ module.exports = class Cards {
             {
               title: i18n.__("cards_manager.confirm_card_back_menu"),
               payload: "CARDS_SUBMIT_CARD"
-              //Insérer la carte
             },
             {
               title: i18n.__("cards_manager.discard_card_back_menu"),
@@ -119,7 +114,6 @@ module.exports = class Cards {
         this.user.nextPayload = "";
         break;
       case "CARDS_SUBMIT_CARD":
-        // Insérer ici la carte
         try{
           let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
           dbConnection.insertCardInDB(this.user);
@@ -133,6 +127,7 @@ module.exports = class Cards {
           console.log("reponse =");
           console.log(response);
           this.user.nextPayload = "";
+          
           break;
       case "CARDS_DISCARD_CARD":
         this.user.cardAnswer = "";
@@ -148,8 +143,8 @@ module.exports = class Cards {
       message : response,
       user : this.user
     };
-    console.log("retourné par Cards :");
-    console.log(retour);
+    //console.log("retourné par Cards :");
+    //console.log(retour);
     return retour;
   }
 }

@@ -84,7 +84,6 @@ app.post("/webhook", (req, res) => {
   if (body.object === "page") {
     // Returns a '200 OK' response to all requests
     res.status(200).send("EVENT_RECEIVED");
-
     // Iterates over each entry - there may be multiple if batched
     body.entry.forEach(function(entry) {
       if ("changes" in entry) {
@@ -146,7 +145,6 @@ app.post("/webhook", (req, res) => {
           })
           .finally(() => {
             users[senderPsid] = user;
-            //users[senderPsid].nextPayload = "";
             i18n.setLocale(user.locale);
             console.log(
               "New Profile PSID:",
@@ -169,12 +167,11 @@ app.post("/webhook", (req, res) => {
           i18n.getLocale()
         );
         let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-        console.log(users[senderPsid]);
         let value = receiveMessage.handleMessage();
-        users[senderPsid].nextPayload  = value.user.nextPayload;
+        Object.assign(users[senderPsid],receiveMessage.user);
         let message = value.message;
-        console.log("recu par app de handleMessage");
-        console.log(value);
+        console.log("Training Set :");
+        users[senderPsid].trainingSet.then(function(result){console.log(result)});
         return message;
       }
     });
@@ -318,6 +315,8 @@ var listener = app.listen(config.port, function() {
 
 let job = new Job(this.user);
 job.createUsersJobs();
+
+
 
 
 

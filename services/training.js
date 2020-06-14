@@ -23,7 +23,7 @@ module.exports = class Training {
   }
 
   handlePayload(payload) {
-    let response;
+    let response = [];
     this.user.nextPayload = "";
     switch (payload) {
       case "ASK_TRAINING"://SCHEDULED_ASKING
@@ -40,6 +40,10 @@ module.exports = class Training {
       case "START_TRAINING":
         //Commencer l'entrainement
         this.user.nextPayload = "";
+        let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
+        this.user.trainingSet = dbConnection.buildUserTrainingSet(this.user);
+        console.log("Training set :");
+        console.log(this.user.trainingSet);
         break;
       case "TRAINING_SETTINGS":
         //Paramètres des entrainements
