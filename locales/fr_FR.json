@@ -31,7 +31,17 @@
 		"FrequencyAcquired": "Votre fréquence de rappel d'entrainements a bien été mise a jour",
 		"back_menu_guidance": "Vous allez être redirigé vers le menu",
 		"Stop": "Votre souhait a bien été pris en compte, les rappels ont été désactivés",
-		"ChangeStopOption": "training.ChangeStopOption"
+		"ChangeStopOption": "training.ChangeStopOption",
+		"rules" : "Vous allez commencer un entrainement. Celui-ci va être composé d'une succesion de cartes en vous affichant leurs questions puis les réponses. A chaque réponse, vous devez nous indiquer si vous aviez oublié la réponse, si vous vous en êtes souvenu difficilement ou si vous vous en souveniez parfaitement. Attention, si vous écrivez dans le chat, cela mettra fin à l'entrainement. Bonne chance !",
+		"start_training" : "Commencer l'entrainement",
+		"cancel_training" : "Arrêter l'entrainement",
+		"show_answer" : "Montrer la réponse",
+		"ask_remembrance" : "Est-ce que vous vous en souveniez ?",
+		"weak_remembrance" : "Pas du tout",
+		"medium_remembrance" : "Difficilement",
+		"strong_remembrance" : "Totalement",
+		"training_finished" : "Bravo ! Tu as fini l'entrainement !",
+		"training_generation" : "Génération du set d'entrainement en cours... Veuillez patienter."
 	},
 	"cards_manager": {
 		"welcome": "Vous voilà dans l'éditeur de cartes.",

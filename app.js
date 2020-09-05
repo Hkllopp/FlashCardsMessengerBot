@@ -10,6 +10,8 @@
 
 "use strict";
 
+const Training = require("./services/training");
+
 // Imports dependencies and set up http server
 const express = require("express"),
   { urlencoded, json } = require("body-parser"),
@@ -77,7 +79,7 @@ app.get("/webhook", (req, res) => {
 });
 
 // Creates the endpoint for your webhook
-app.post("/webhook", (req, res) => {
+app.post("/webhook", async (req, res) => {
   let body = req.body;
 
   // Checks if this is an event from a page subscription
@@ -85,7 +87,7 @@ app.post("/webhook", (req, res) => {
     // Returns a '200 OK' response to all requests
     res.status(200).send("EVENT_RECEIVED");
     // Iterates over each entry - there may be multiple if batched
-    body.entry.forEach(function(entry) {
+    body.entry.forEach(async function (entry) {
       if ("changes" in entry) {
         // Handle Page Changes event
         let receiveMessage = new Receive();
@@ -136,14 +138,14 @@ app.post("/webhook", (req, res) => {
 
         let user = new User(senderPsid);
         GraphAPi.getUserProfile(senderPsid)
-          .then(userProfile => {
+          .then(async userProfile => {
             user.setProfile(userProfile);
           })
-          .catch(error => {
+          .catch(async error => {
             // The profile is unavailable
             console.log("Profile is unavailable:", error);
           })
-          .finally(() => {
+          .finally(async () => {
             users[senderPsid] = user;
             i18n.setLocale(user.locale);
             console.log(
@@ -152,8 +154,10 @@ app.post("/webhook", (req, res) => {
               "with locale:",
               i18n.getLocale()
             );
+            console.log("User created :");
+            console.log(users[senderPsid]);
             let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-            let response = receiveMessage.handleMessage();
+            let response = await receiveMessage.handleMessage();
             let message  = response.message;
             let nextPayload = response.nextPayload;
             return message;
@@ -167,11 +171,28 @@ app.post("/webhook", (req, res) => {
           i18n.getLocale()
         );
         let receiveMessage = new Receive(users[senderPsid], webhookEvent);
-        let value = receiveMessage.handleMessage();
-        Object.assign(users[senderPsid],receiveMessage.user);
+        let value = await receiveMessage.handleMessage();
+        Object.assign(users[senderPsid],value.user);
         let message = value.message;
-        console.log("Training Set :");
-        users[senderPsid].trainingSet.then(function(result){console.log(result)});
+        // Ne marche pas.
+        // Le but est d'envoyer une réponse au client quand le set sera généré
+        if (webhookEvent.message.quick_reply.payload == "START_TRAINING")
+        {
+            let myResponse = new Receive(
+              {
+                psid:senderPsid
+              },
+              {
+                sender: { id: senderPsid },
+                recipient: { id: '105721614427415' },
+                message: {
+                  quick_reply: { payload: 'TRAINING_USER_WAITING' }
+                }
+              }
+              );
+              let value = await myResponse.handleMessage();
+              Object.assign(users[senderPsid],value.user);
+        }
         return message;
       }
     });

@@ -10,13 +10,9 @@
 
 "use strict";
 
-const Curation = require("./curation"),
-  Training = require("./training"),
+const Training = require("./training"),
   Cards = require("./cards"),
-  Order = require("./order"),
   Response = require("./response"),
-  Care = require("./care"),
-  Survey = require("./survey"),
   GraphAPi = require("./graph-api"),
   i18n = require("../i18n.config"),
   Database = require("./database");
@@ -31,7 +27,9 @@ const Curation = require("./curation"),
 
   // Check if the event is a message or postback and
   // call the appropriate handler function
-  handleMessage() {
+  async handleMessage() {
+    console.log("received message");
+    console.log(this.webhookEvent);
     let event = this.webhookEvent;
 
     let value, responses;
@@ -44,29 +42,29 @@ const Curation = require("./curation"),
 
         if (message.quick_reply) {
           // Automatic responses
-          value = this.handleQuickReply();
+          value = await this.handleQuickReply();
           //console.log("recu par receive (handleMessage) de handleQuickReply");
           //console.log(value);
           responses = value.message;
           this.user = value.user;
         } else if (message.attachments) {
-          value = this.handleAttachmentMessage();
+          value = await this.handleAttachmentMessage();
           //console.log("recu par receive (handleMessage) de handleAttachmentMessage");
           //console.log(value);
           responses = value.message;
           this.user = value.user;
         } else if (message.text) {
-          value = this.handleTextMessage();
+          value = await this.handleTextMessage();
           responses = value.message;
           this.user = value.user;
           //console.log("recu par receive (handleMessage) de handleTextMessage");
           //console.log(value);
         }
       } else if (event.postback) {
-        responses = this.handlePostback();
+        responses = await this.handlePostback();
         //Postbacks occur when a postback button, Get Started button, or persistent menu item is tapped.
       } else if (event.referral) {
-        responses = this.handleReferral();
+        responses = await this.handleReferral();
         /*This callback will occur when the user already has a thread with the bot and user comes to the thread from:
         Following an m.me link with a referral parameter
         Clicking on a Messenger Conversation Ad
@@ -100,7 +98,7 @@ const Curation = require("./curation"),
   }
 
   // Handles messages events with text
-  handleTextMessage() {
+  async handleTextMessage() {
     console.log(
       "Received text:",
       `${this.webhookEvent.message.text} for ${this.user.psid}`
@@ -109,7 +107,7 @@ const Curation = require("./curation"),
     if (this.user.nextPayload!=""){
       console.log("checkpoint");
       console.log("Received Payload:", `${this.user.nextPayload}`);
-      let message = this.handlePayload(this.user.nextPayload);
+      let message = await this.handlePayload(this.user.nextPayload);
       return message;
     }
       else{
@@ -196,16 +194,16 @@ const Curation = require("./curation"),
   }
 
   // Handles mesage events with quick replies
-  handleQuickReply() {
+  async handleQuickReply() {
     // Get the payload of the quick reply
     let payload = this.webhookEvent.message.quick_reply.payload;
     console.log("le payload est :");
     console.log(payload);
-    return this.handlePayload(payload);
+    return await this.handlePayload(payload);
   }
 
   // Handles postbacks events
-  handlePostback() {
+  async handlePostback() {
     let postback = this.webhookEvent.postback;
     // Check for the special Get Starded with referral
     let payload;
@@ -215,18 +213,18 @@ const Curation = require("./curation"),
       // Get the payload of the postback
       payload = postback.payload;
     }
-    return this.handlePayload(payload.toUpperCase());
+    return await this.handlePayload(payload.toUpperCase());
   }
 
   // Handles referral events
-  handleReferral() {
+  async handleReferral() {
     // Get the payload of the postback
     let payload = this.webhookEvent.referral.ref.toUpperCase();
 
-    return this.handlePayload(payload);
+    return await this.handlePayload(payload);
   }
 
-  handlePayload(payload) {
+  async handlePayload(payload) {
     console.log("Received Payload:", `${payload} for ${this.user.psid}`);
 
     // Log CTA event in FBA
@@ -243,7 +241,9 @@ const Curation = require("./curation"),
       response = Response.genNuxMessage(this.user);
     } else if (payload.includes("TRAINING")) {
       let training = new Training(this.user, this.webhookEvent);
-      value = training.handlePayload(payload);
+      value = await training.handlePayload(payload);
+      console.log("retourné :");
+      console.log(value);
       this.user = value.user;
       response = value.message;
     } else if (payload.includes("CARDS")) {

@@ -103,6 +103,7 @@ module.exports = class Database {
     }
 
     async promisedQuery(query){
+      console.log(query);
       try {
         const connection = mysql.createConnection({  
           host     : this.host,
@@ -131,7 +132,6 @@ module.exports = class Database {
     {
       let query = "SELECT ID,Probability FROM card WHERE User = (SELECT id FROM User WHERE FbId = "+
       user.psid + ");";
-      console.log(query);
       let probability = await this.promisedQuery(query);
       var cumulatedArray = [];
       var cumulatedProba = 0
@@ -150,9 +150,11 @@ module.exports = class Database {
     
     async buildUserTrainingSet(user)
     {
-      let cumuledProbaArray  = await this.getuserTrainingCardsCumuledProbablities(user);
-      let chosenCards = await this.choseRandomCards(cumuledProbaArray, 5);
-      return chosenCards;
+      let cumuledProbaArray = await this.getuserTrainingCardsCumuledProbablities(user);
+      let result = await this.choseRandomCards(cumuledProbaArray, 5);
+      console.log("generated set : ");
+      console.log(result);
+      return result;
     }
 
     async choseRandomCards(cumuledProbaArray, cardsNumber)
@@ -160,8 +162,6 @@ module.exports = class Database {
       let randomProba = 0;
       let maxProba = cumuledProbaArray[cumuledProbaArray.length-1].probability;
       let chosenCards = [];
-
-      console.log(cumuledProbaArray);
       for (let i = 0;i<cardsNumber;i++)
       {
         randomProba = (Math.random() * maxProba);
@@ -179,4 +179,25 @@ module.exports = class Database {
       return chosenCards;
     }
 
+    async getCard(cardId)
+    {
+      let query = "SELECT ID, Question, Answer, Probability FROM card WHERE ID = " + cardId;
+      let card = await this.promisedQuery(query);
+      return card;
+    }
+
+    async updateCardProbability(cardId, probability)
+    {
+      let query = "UPDATE Card SET Probability=" + 
+      probability + " WHERE ID ="+cardId;
+      await this.promisedQuery(query);
+      console.log("probability updated !");
+      return;
+    }
+
+    async getPromise(promise)
+    {
+      promise.resolve();
+      return promise;
+    }
   }

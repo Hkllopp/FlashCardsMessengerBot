@@ -20,6 +20,7 @@ module.exports = class User {
     this.gender = "neutral";
     this.nextPayload = "";
     this.trainingSet = [];
+    this.trainingCard = 0;
   }
   setProfile(profile) {
     this.firstName = profile.firstName;
