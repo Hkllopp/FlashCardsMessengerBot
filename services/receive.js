@@ -82,7 +82,7 @@ const Training = require("./training"),
     if (Array.isArray(responses)) {
       let delay = 0;
       for (let message of responses) {
-        this.sendMessage(message, delay * 200); // At the origin, it was *2000
+        this.sendMessage(message, delay * 1000); // At the origin, it was *2000
         delay++;
       }
     } else {

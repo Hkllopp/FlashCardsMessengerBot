@@ -158,8 +158,9 @@ app.post("/webhook", async (req, res) => {
             console.log(users[senderPsid]);
             let receiveMessage = new Receive(users[senderPsid], webhookEvent);
             let response = await receiveMessage.handleMessage();
+            Object.assign(users[senderPsid],response.user);
             let message  = response.message;
-            let nextPayload = response.nextPayload;
+            await launchTraining(webhookEvent);
             return message;
           });
       } else {
@@ -174,25 +175,7 @@ app.post("/webhook", async (req, res) => {
         let value = await receiveMessage.handleMessage();
         Object.assign(users[senderPsid],value.user);
         let message = value.message;
-        // Ne marche pas.
-        // Le but est d'envoyer une réponse au client quand le set sera généré
-        if (webhookEvent.message.quick_reply.payload == "START_TRAINING")
-        {
-            let myResponse = new Receive(
-              {
-                psid:senderPsid
-              },
-              {
-                sender: { id: senderPsid },
-                recipient: { id: '105721614427415' },
-                message: {
-                  quick_reply: { payload: 'TRAINING_USER_WAITING' }
-                }
-              }
-              );
-              let value = await myResponse.handleMessage();
-              Object.assign(users[senderPsid],value.user);
-        }
+        await launchTraining(webhookEvent);
         return message;
       }
     });
@@ -310,6 +293,30 @@ var listener = app.listen(config.port, function() {
     console.log("https://m.me/" + config.pageId);
   }
 });
+
+async function launchTraining(webhookEvent) {
+  if (webhookEvent.message.quick_reply !== undefined)
+  {
+    if (webhookEvent.message.quick_reply.payload == "START_TRAINING")
+    {
+      console.log("Ask training !");
+        let myResponse = new Receive(
+          {
+            psid:webhookEvent.sender.id
+          },
+          {
+            sender: { id: webhookEvent.sender.id },
+            recipient: { id: '105721614427415' },
+            message: {
+              quick_reply: { payload: 'TRAINING_USER_WAITING' }
+            }
+          }
+          );
+          let value = await myResponse.handleMessage();
+          Object.assign(users[webhookEvent.sender.id],value.user);
+    }
+  }
+}
 
 // Send users reminders to train (every 30 sec : '*/30 * * ? * *')
 

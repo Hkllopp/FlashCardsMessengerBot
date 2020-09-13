@@ -27,7 +27,7 @@ module.exports = class Training {
   async generate(type)
   {
     let trainingSet = this.user.trainingSet;
-    let number = this.user.trainingCard;
+    let number = this.user.trainingCard.position;
     let cardId = trainingSet[number].cardId;
     let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
     let card = (await dbConnection.getCard(cardId))[0];
@@ -48,7 +48,7 @@ module.exports = class Training {
 
   async handlePayload(payload) {
     let card;
-    let probability;
+    let newProbability;
     let dbConnection = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
     let response = [];
     this.user.nextPayload = "";
@@ -74,7 +74,9 @@ module.exports = class Training {
       case "TRAINING_USER_WAITING":        
         //Annoncer les règles
         let trainingSet = await dbConnection.buildUserTrainingSet(this.user);
-        this.user.trainingCard = 0;
+        this.user.trainingCard = {};
+        this.user.trainingCard.card = trainingSet[0];
+        this.user.trainingCard.position = 0;
         this.user.trainingSet = trainingSet;
 
         this.user.nextPayload = "TRAINING_CANCEL";
@@ -135,52 +137,114 @@ module.exports = class Training {
         break;
         case "TRAINING_WEAK_REMEMBRANCE":
           // Update la carte pour augmenter sa probbailité
-          card = dbConnection.getCard(this.user.trainingCard);
-          probability = card.Probability + 0.5;
-          dbConnection.updateCardProbability(card.ID, probability);
+          card = this.user.trainingCard.card;
+          newProbability = card.probability + 0.5;
+          dbConnection.updateCardProbability(card.cardId, newProbability);
+
           // Passer à la carte suivante
-          this.user.trainingCard += 1;
+          this.user.trainingCard.position = this.user.trainingCard.position + 1;
+          this.user.trainingCard.card = this.user.trainingSet[this.user.trainingCard.position];
+
           // Vérifie si l'entrainement est fini (si c'est le cas, envoi entrainement fini + back menu)
-          if (this.user.trainingCard >= this.user.trainingSet.length)
+          if (this.user.trainingCard.position >= this.user.trainingSet.length)
           {
-            this.user.trainingCard = 0;
-            this.handlePayload("TRAINING_FINISHED");
+            this.user.trainingCard = {};
+            this.user.nextPayload = "";
+            response = [
+              Response.genText(i18n.__("training.training_finished"))
+            ].concat(trainingMenu);
           }
           else
           {
             // Montrer la prochaine carte
-            this.handlePayload("TRAINING_SHOW_QUESTION");
+            let card_question = await this.generate("question");
+            response = [
+              Response.genQuickReply(card_question, [//Mettre ici la question de la carte
+                {
+                  title: i18n.__("training.show_answer"),
+                  payload: "TRAINING_SHOW_ANSWER"
+                },
+                {
+                  title: i18n.__("training.cancel_training"),
+                  payload: "TRAINING_CANCEL"
+                }
+              ])
+            ];
           }
           break;
         case "TRAINING_MEDIUM_REMEMBRANCE":
-          this.user.trainingCard += 1;
-          if (this.user.trainingCard >= this.user.trainingSet.length)
+          // On ne touche pas à la probailité
+
+          // Passer à la carte suivante
+          this.user.trainingCard.position = this.user.trainingCard.position + 1;
+          this.user.trainingCard.card = this.user.trainingSet[this.user.trainingCard.position];
+
+          // Vérifie si l'entrainement est fini (si c'est le cas, envoi entrainement fini + back menu)
+          if (this.user.trainingCard.position >= this.user.trainingSet.length)
           {
-            this.user.trainingCard = 0;
-            this.handlePayload("TRAINING_FINISHED");
+            this.user.trainingCard = {};
+            this.user.nextPayload = "";
+            response = [
+              Response.genText(i18n.__("training.training_finished"))
+            ].concat(trainingMenu);
           }
           else
           {
-            this.handlePayload("TRAINING_SHOW_QUESTION");
+            // Montrer la prochaine carte
+            let card_question = await this.generate("question");
+            response = [
+              Response.genQuickReply(card_question, [//Mettre ici la question de la carte
+                {
+                  title: i18n.__("training.show_answer"),
+                  payload: "TRAINING_SHOW_ANSWER"
+                },
+                {
+                  title: i18n.__("training.cancel_training"),
+                  payload: "TRAINING_CANCEL"
+                }
+              ])
+            ];
           }
           break;
         case "TRAINING_STRONG_REMEMBRANCE":
-          card = dbConnection.getCard(this.user.trainingCard);
-          probability = card.Probability - 0.5;
-          if (probability < 0)
+          // Update la carte pour augmenter sa probbailité
+          card = this.user.trainingCard.card;
+          newProbability = card.probability - 0.5;
+          if (newProbability < 0)
           {
-            probability = 0;
+            newProbability = 0;
           }
-          dbConnection.updateCardProbability(card.ID, probability);
-          this.user.trainingCard += 1;
-          if (this.user.trainingCard >= this.user.trainingSet.length)
+          dbConnection.updateCardProbability(card.cardId, newProbability);
+
+          // Passer à la carte suivante
+          this.user.trainingCard.position = this.user.trainingCard.position + 1;
+          this.user.trainingCard.card = this.user.trainingSet[this.user.trainingCard.position];
+
+          // Vérifie si l'entrainement est fini (si c'est le cas, envoi entrainement fini + back menu)
+          if (this.user.trainingCard.position >= this.user.trainingSet.length)
           {
-            this.user.trainingCard = 0;
-            this.handlePayload("TRAINING_FINISHED");
+            this.user.trainingCard = {};
+            this.user.nextPayload = "";
+            response = [
+              Response.genText(i18n.__("training.training_finished"))
+            ].concat(trainingMenu);
           }
           else
           {
-            this.handlePayload("TRAINING_SHOW_QUESTION");
+            // Montrer la prochaine carte
+            let card_question = await this.generate("question");
+            response = [
+              Response.genQuickReply(card_question, [//Mettre ici la question de la carte
+                {
+                  title: i18n.__("training.show_answer"),
+                  payload: "TRAINING_SHOW_ANSWER"
+                },
+                {
+                  title: i18n.__("training.cancel_training"),
+                  payload: "TRAINING_CANCEL"
+                }
+              ])
+            ];
           }
           break; 
       case "TRAINING_FINISHED":
@@ -192,7 +256,7 @@ module.exports = class Training {
       case "TRAINING_CANCEL":
         //Abandonner l'entrainement
         this.user.nextPayload = "";
-        this.user.trainingCard = 0;
+        this.user.trainingCard = {};
         response = trainingMenu;
         break;
       case "TRAINING_SETTINGS":

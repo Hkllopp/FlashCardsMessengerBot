@@ -25,14 +25,15 @@ module.exports = class Job {
       async createUsersJobs()
       {
         let db = new Database(config.dbHost,config.dbUser,config.dbPassword,config.dbName);
-        let responsePromise  = db.getUsersTrainingSettings();
-        let response  = await responsePromise;
+        let response  =  await db.getUsersTrainingSettings();
         
         for (let userSetting of response)
         {
           let userId = userSetting.FbId;
           let jobName = "job" + userId; // Every jobs created from users settings in db will be called "job" + [userId] as it'll be unique
           let userFrequency = userSetting.Frequency;
+          console.log( jobName);
+          console.log(userFrequency);
           schedule.scheduleJob(
             jobName,
             userFrequency,

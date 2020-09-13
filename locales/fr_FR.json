@@ -26,7 +26,7 @@
 		"trainingSetSizeOption": "Changer le nombre de cartes par entrainement",
 		"StopOption": "Arrêter les entrainements",
 		"BackToMenu": "Revenir au menu",
-		"FrequencyAsking": "Entrez votre fréquence au format CRON. Vous pouvez vous aider du site suivant pour les générer : https://www.freeformatter.com/cron-expression-generator-quartz.html .",
+		"FrequencyAsking": "Entrez votre fréquence au format CRON. Vous pouvez vous aider du site suivant pour les générer : https://www.freeformatter.com/cron-expression-generator-quartz.html . Ne marquez pas le dernier paramètre (année)",
 		"back_menu_proposition": "Vous pouvez aussi revenir au menu en cliquant sur la réponse ci-dessous",
 		"FrequencyAcquired": "Votre fréquence de rappel d'entrainements a bien été mise a jour",
 		"back_menu_guidance": "Vous allez être redirigé vers le menu",

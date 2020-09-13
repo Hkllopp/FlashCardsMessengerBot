@@ -21,6 +21,8 @@ module.exports = class Database {
         this.database = database;
       }
 
+    setSize = 5;
+
 
     testConnection() {
         var connection = mysql.createConnection({
@@ -93,7 +95,7 @@ module.exports = class Database {
         console.log("USER NON TROUVE DANS LA BD !");
         let query = "INSERT INTO User(FbId) VALUES (\"" + userID + "\");";
         console.log(query);
-        let promise = await this.promisedQuery(query);
+        await this.promisedQuery(query);
       }
       else
       {
@@ -140,7 +142,6 @@ module.exports = class Database {
         cumulatedProba += probability[i].Probability;
         cumulatedArray[i] = 
         {
-          "id" : i,
           "cardId" : probability[i].ID,
           "probability" : cumulatedProba
         }
@@ -151,7 +152,7 @@ module.exports = class Database {
     async buildUserTrainingSet(user)
     {
       let cumuledProbaArray = await this.getuserTrainingCardsCumuledProbablities(user);
-      let result = await this.choseRandomCards(cumuledProbaArray, 5);
+      let result = await this.choseRandomCards(cumuledProbaArray, this.setSize);
       console.log("generated set : ");
       console.log(result);
       return result;
